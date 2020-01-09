@@ -11,7 +11,6 @@ import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription
 import java.io.File
-import java.nio.file.Paths
 import java.security.Security
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
@@ -25,10 +24,12 @@ class MiloClientRunner(private val client: MiloClient) {
     @Throws(Exception::class)
     private fun createClient(context: Context): OpcUaClient {
 
-        val securityTempDir =
-            Paths.get(getInternalStorageDirectoryPath(context, "secure").absolutePath)
-        Log.d("MILO", "security temp dir: ${securityTempDir.toAbsolutePath()}")
+        val securityTempDir = File(getSecureDirectory(context).absolutePath)
+        /*Paths.get(getSecureDirectory(context).absolutePath)*/
+        Log.d("MILO", "security temp dir: ${securityTempDir.absolutePath}")
 
+        // TODO keystore 는 어떻게 생성, 관리?
+        //  클라이언트를 생성 할 때마다 로딩?
         val loader = KeyStoreLoader().load(securityTempDir)
 
         val securityPolicy: SecurityPolicy = client.getSecurityPolicy()
@@ -37,6 +38,7 @@ class MiloClientRunner(private val client: MiloClient) {
             DiscoveryClient.getEndpoints(client.getEndpointUrl()).get()
         } catch (ex: Throwable) { // try the explicit discovery endpoint as well
             Log.e("MILO", ex.message, ex)
+            // FIXME  EndPoints 를 얻어내지 못했을 때? throw exception
             var discoveryUrl: String = client.getEndpointUrl()
             if (!discoveryUrl.endsWith("/")) {
                 discoveryUrl += "/"
@@ -127,9 +129,9 @@ class MiloClientRunner(private val client: MiloClient) {
 //        fun getSecureDirectory(context: Context, dirName: String): File =
 //            File(getInternalStorageDirectoryPath(context, "secure"), dirName)
 
-        private fun getInternalStorageDirectoryPath(context: Context, directoryName: String): File {
+        private fun getSecureDirectory(context: Context): File {
             val directory =
-                File("${context.filesDir}${File.separator}${directoryName}${File.separator}")
+                File("${context.filesDir}${File.separator}secure${File.separator}")
             if (!directory.exists()) {
                 directory.mkdir()
             }

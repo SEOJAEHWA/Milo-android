@@ -16,10 +16,11 @@ import org.eclipse.milo.opcua.sdk.server.util.HostnameUtil;
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateBuilder;
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateGenerator;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyStore;
@@ -39,14 +40,14 @@ class KeyStoreLoader {
     private X509Certificate clientCertificate;
     private KeyPair clientKeyPair;
 
-    KeyStoreLoader load(Path baseDir) throws Exception {
+    KeyStoreLoader load(File baseDir) throws Exception {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
 
-        Path serverKeyStore = baseDir.resolve("example-client.pfx");
+        File serverKeyStore = new File(baseDir, "example-client.pfx");
 
         Log.d("MILO", "Loading KeyStore at " + serverKeyStore);
 
-        if (!Files.exists(serverKeyStore)) {
+        if (!serverKeyStore.exists()) {
             keyStore.load(null, PASSWORD);
 
             KeyPair keyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
@@ -74,11 +75,11 @@ class KeyStoreLoader {
             X509Certificate certificate = builder.build();
 
             keyStore.setKeyEntry(CLIENT_ALIAS, keyPair.getPrivate(), PASSWORD, new X509Certificate[]{certificate});
-            try (OutputStream out = Files.newOutputStream(serverKeyStore)) {
+            try (OutputStream out = new FileOutputStream(serverKeyStore)) {
                 keyStore.store(out, PASSWORD);
             }
         } else {
-            try (InputStream in = Files.newInputStream(serverKeyStore)) {
+            try (InputStream in = new FileInputStream(serverKeyStore)) {
                 keyStore.load(in, PASSWORD);
             }
         }

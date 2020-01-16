@@ -1,34 +1,33 @@
 package kr.co.aiblab.test.milo.client
 
-import com.google.common.collect.ImmutableList
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.aiblab.test.milo.milo.MiloClient
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient
 import org.eclipse.milo.opcua.stack.core.Identifiers
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue
-import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId
-import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger
+import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseDirection
+import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseResultMask
+import org.eclipse.milo.opcua.stack.core.types.enumerated.NodeClass
+import org.eclipse.milo.opcua.stack.core.types.structured.BrowseDescription
+import org.eclipse.milo.opcua.stack.core.types.structured.ReferenceDescription
 
 
-class BrowseExample : MiloClient<List<DataValue?>?> {
+class BrowseExample : MiloClient<List<ReferenceDescription>?> {
 
     override suspend fun execute(
         client: OpcUaClient
-    ): List<DataValue?>? = withContext(Dispatchers.IO) {
-
-        val node = client.addressSpace.createVariableNode(Identifiers.Server_ServerStatus_StartTime)
-        val value: DataValue = node.readValue().get()
-
-        Logger.i("StartTime=${value.value.value}")
-
-        val nodeIds: List<NodeId> = ImmutableList.of(
-            Identifiers.Server_ServerStatus_State,
-            Identifiers.Server_ServerStatus_CurrentTime
+    ): List<ReferenceDescription>? = withContext(Dispatchers.IO) {
+        val browse = BrowseDescription(
+            Identifiers.RootFolder,
+            BrowseDirection.Forward,
+            Identifiers.References,
+            true,
+            UInteger.valueOf(NodeClass.Object.value or NodeClass.Variable.value),
+            UInteger.valueOf(BrowseResultMask.All.getValue())
         )
 
-        val readValues = client.readValues(0.0, TimestampsToReturn.Both, nodeIds)
-        readValues.get()
+        val browseResult = client.browse(browse).get()
+        browseResult.references?.asList()
     }
 }

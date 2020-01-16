@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kr.co.aiblab.test.milo.client.BrowseExample
 import kr.co.aiblab.test.milo.client.ReadExample
 import kr.co.aiblab.test.milo.milo.KeyStoreLoader
 import kr.co.aiblab.test.milo.milo.MiloClientRunner
@@ -29,11 +30,14 @@ class MainActivity : AppCompatActivity() {
         btn_read.setOnClickListener {
             read(it.context)
         }
+
+        btn_browse.setOnClickListener {
+            browse(it.context)
+        }
     }
 
     private fun read(context: Context) {
         GlobalScope.launch {
-
             withContext(Dispatchers.IO) {
                 // FIXME KeyStoreLoader 가 어떻게 활용되느냐에 맞춰 MiloClientLoader class 수정 예정
                 val loader = getKeyStoreLoader(context)
@@ -51,6 +55,26 @@ class MainActivity : AppCompatActivity() {
 
                     showToast(context, "State=${state}")
                     setText("State=$state\nCurrentTime=$currentTime")
+                }
+            }
+        }
+    }
+
+    private fun browse(context: Context) {
+        GlobalScope.launch {
+            withContext(Dispatchers.IO) {
+                val loader = getKeyStoreLoader(context)
+                with(
+                    MiloClientRunner(
+                        loader,
+                        BrowseExample()
+                    ).run()
+                ) {
+                    this?.let {
+                        for (referenceDescription in it) {
+                            Logger.i("Node=${referenceDescription.browseName.name}")
+                        }
+                    }
                 }
             }
         }

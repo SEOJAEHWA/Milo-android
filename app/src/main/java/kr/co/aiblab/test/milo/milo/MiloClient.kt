@@ -1,14 +1,13 @@
-package kr.co.aiblab.test.milo.client
+package kr.co.aiblab.test.milo.milo
 
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription
-import java.util.concurrent.CompletableFuture
 import java.util.function.Predicate
 
-interface MiloClient {
+interface MiloClient<T> {
 
     fun getEndpointUrl(): String {
         return "https://192.168.0.115:8443/milo"
@@ -30,8 +29,7 @@ interface MiloClient {
     }
 
     @Throws(Exception::class)
-    fun run(
-        client: OpcUaClient,
-        future: CompletableFuture<OpcUaClient>
-    )
+    suspend fun execute(
+        client: OpcUaClient
+    ) : T
 }

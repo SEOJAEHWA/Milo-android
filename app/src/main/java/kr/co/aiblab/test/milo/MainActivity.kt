@@ -2,18 +2,27 @@ package kr.co.aiblab.test.milo
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
+import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import com.orhanobut.logger.AndroidLogAdapter
+import com.orhanobut.logger.Logger
+import com.orhanobut.logger.PrettyFormatStrategy
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kr.co.aiblab.test.milo.client.MiloClientRunner
 import kr.co.aiblab.test.milo.client.ReadExample
+import kr.co.aiblab.test.milo.milo.KeyStoreLoader
+import kr.co.aiblab.test.milo.milo.MiloClientRunner
+import org.eclipse.milo.opcua.stack.core.types.enumerated.ServerState
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        initLogger()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -24,20 +33,68 @@ class MainActivity : AppCompatActivity() {
 
     private fun read(context: Context) {
         GlobalScope.launch {
+
             withContext(Dispatchers.IO) {
-                // TODO
-                //  1. 키스토어 키 생성, 로딩
-                //  2. EndPointDescription 획득, 전달
-                //  3. client 생성
-                //  4. client connection 후 run 실행
-                //      >> 얻어온 데이터(or Exception) 를 ui 로 넘김
-                //  5. client disconnection, 완료 처리
+                // FIXME KeyStoreLoader 가 어떻게 활용되느냐에 맞춰 MiloClientLoader class 수정 예정
+                val loader = getKeyStoreLoader(context)
+                with(
+                    MiloClientRunner(
+                        loader,
+                        ReadExample()
+                    ).run()
+                ) {
+                    val state = ServerState.from(this!![0]!!.value.value as Int)
+                    val currentTime = this[1]!!.value.value
 
-                // TODO CompletableFuture 는 걷어내볼 것!
+                    Logger.d("State=$state")
+                    Logger.d("CurrentTime=$currentTime")
 
-
-                MiloClientRunner(ReadExample()).run(context)
+                    showToast(context, "State=${state}")
+                    setText("State=$state\nCurrentTime=$currentTime")
+                }
             }
+        }
+    }
+
+    private suspend fun showToast(context: Context, message: String) =
+        withContext(Dispatchers.Main) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+
+    private suspend fun setText(message: String) =
+        withContext(Dispatchers.Main) {
+            tv_info.text = message
+        }
+
+    private suspend fun getKeyStoreLoader(
+        context: Context
+    ): KeyStoreLoader = withContext(Dispatchers.Default) {
+        val securityTempDir = File(getSecureDirectory(context).absolutePath)
+        Logger.d("security temp dir: ${securityTempDir.absolutePath}")
+        KeyStoreLoader().load(securityTempDir)
+    }
+
+    private fun initLogger() {
+        Logger.clearLogAdapters()
+        Logger.addLogAdapter(object : AndroidLogAdapter(
+            PrettyFormatStrategy.newBuilder()
+                .tag("MILO_TEST")
+                .build()
+        ) {
+            override fun isLoggable(priority: Int, @Nullable tag: String?): Boolean {
+                return BuildConfig.DEBUG
+            }
+        })
+    }
+
+    companion object {
+
+        private fun getSecureDirectory(context: Context): File {
+            val directory = File("${context.filesDir}${File.separator}secure${File.separator}")
+            if (!directory.exists()) {
+                directory.mkdir()
+            }
+            return directory
         }
     }
 }

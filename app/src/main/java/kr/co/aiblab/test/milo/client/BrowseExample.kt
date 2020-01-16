@@ -12,7 +12,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn
 
 
-class ReadExample : MiloClient<List<DataValue?>?> {
+class BrowseExample : MiloClient<List<DataValue?>?> {
 
     override suspend fun execute(
         client: OpcUaClient

@@ -2,21 +2,18 @@ package kr.co.aiblab.test.milo
 
 import android.content.Context
 import android.os.Bundle
-import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kr.co.aiblab.test.milo.client.BrowseExample
-import kr.co.aiblab.test.milo.client.ReadExample
-import kr.co.aiblab.test.milo.milo.KeyStoreLoader
-import kr.co.aiblab.test.milo.milo.MiloClientRunner
+import kr.co.aiblab.test.milo.viewmodel.OpcUaViewModel
+import kr.co.aiblab.test.milo.viewmodel.OpcUaViewModelFactory
 import org.eclipse.milo.opcua.stack.core.types.enumerated.ServerState
 import java.io.File
 
@@ -27,75 +24,49 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val model = ViewModelProvider(
+            this,
+            OpcUaViewModelFactory(application)
+        ).get(OpcUaViewModel::class.java)
+
+        model.data.observe(this) {
+            Logger.i("Subscribing.... >> $it")
+            updateText(it)
+        }
+
+        model.readData.observe(this) {
+            val state = ServerState.from(it!![0]!!.value.value as Int)
+            val currentTime = it[1]!!.value.value
+
+            Logger.d("State=$state")
+            Logger.d("CurrentTime=$currentTime")
+
+            updateText("State=$state\nCurrentTime=$currentTime")
+        }
+
         btn_read.setOnClickListener {
-            read(it.context)
+            GlobalScope.launch {
+                model.read()
+            }
         }
 
         btn_browse.setOnClickListener {
-            browse(it.context)
-        }
-    }
-
-    private fun read(context: Context) {
-        GlobalScope.launch {
-            withContext(Dispatchers.IO) {
-                // FIXME KeyStoreLoader 가 어떻게 활용되느냐에 맞춰 MiloClientLoader class 수정 예정
-                val loader = getKeyStoreLoader(context)
-                with(
-                    MiloClientRunner(
-                        loader,
-                        ReadExample()
-                    ).run()
-                ) {
-                    val state = ServerState.from(this!![0]!!.value.value as Int)
-                    val currentTime = this[1]!!.value.value
-
-                    Logger.d("State=$state")
-                    Logger.d("CurrentTime=$currentTime")
-
-                    showToast(context, "State=${state}")
-                    setText("State=$state\nCurrentTime=$currentTime")
-                }
+            GlobalScope.launch {
+                model.browse()
             }
         }
-    }
 
-    private fun browse(context: Context) {
-        GlobalScope.launch {
-            withContext(Dispatchers.IO) {
-                val loader = getKeyStoreLoader(context)
-                with(
-                    MiloClientRunner(
-                        loader,
-                        BrowseExample()
-                    ).run()
-                ) {
-                    this?.let {
-                        for (referenceDescription in it) {
-                            Logger.i("Node=${referenceDescription.browseName.name}")
-                        }
-                    }
-                }
-            }
+        btn_subscribe_on.setOnClickListener {
+            model.subscribeA()
+        }
+
+        btn_subscribe_off.setOnClickListener {
+            model.unsubscribeA()
         }
     }
 
-    private suspend fun showToast(context: Context, message: String) =
-        withContext(Dispatchers.Main) {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        }
-
-    private suspend fun setText(message: String) =
-        withContext(Dispatchers.Main) {
-            tv_info.text = message
-        }
-
-    private suspend fun getKeyStoreLoader(
-        context: Context
-    ): KeyStoreLoader = withContext(Dispatchers.Default) {
-        val securityTempDir = File(getSecureDirectory(context).absolutePath)
-        Logger.d("security temp dir: ${securityTempDir.absolutePath}")
-        KeyStoreLoader().load(securityTempDir)
+    private fun updateText(message: String) {
+        tv_info.text = message
     }
 
     private fun initLogger() {
@@ -113,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
-        private fun getSecureDirectory(context: Context): File {
+        fun getSecureDirectory(context: Context): File {
             val directory = File("${context.filesDir}${File.separator}secure${File.separator}")
             if (!directory.exists()) {
                 directory.mkdir()

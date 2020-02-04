@@ -1,5 +1,6 @@
 package kr.co.aiblab.test.milo.client
 
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.aiblab.test.milo.milo.MiloClient
@@ -24,10 +25,17 @@ class BrowseExample : MiloClient<List<ReferenceDescription>?> {
             Identifiers.References,
             true,
             UInteger.valueOf(NodeClass.Object.value or NodeClass.Variable.value),
-            UInteger.valueOf(BrowseResultMask.All.getValue())
+            UInteger.valueOf(BrowseResultMask.All.value)
         )
 
         val browseResult = client.browse(browse).get()
         browseResult.references?.asList()
+    }
+
+    override suspend fun execute(
+        client: OpcUaClient,
+        data: MutableLiveData<List<ReferenceDescription>?>
+    ) {
+
     }
 }

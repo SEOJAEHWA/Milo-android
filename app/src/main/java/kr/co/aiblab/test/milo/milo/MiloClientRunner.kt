@@ -1,5 +1,7 @@
 package kr.co.aiblab.test.milo.milo
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,6 +39,12 @@ class MiloClientRunner<T>(
         return OpcUaClient.create(config)
     }
 
+    suspend fun get(): OpcUaClient = withContext(Dispatchers.Default) {
+        createClient(miloClient)
+    }
+
+    fun getMiloClient(): MiloClient<T> = miloClient
+
     suspend fun run(): T = withContext(Dispatchers.IO) {
         val client = createClient(miloClient)
 
@@ -54,6 +62,23 @@ class MiloClientRunner<T>(
         }
 
         result
+    }
+
+    suspend fun run(data: MutableLiveData<T>) = withContext(Dispatchers.IO) {
+        val client = createClient(miloClient)
+
+        client.connect().get()
+
+        miloClient.execute(client, data)
+
+        try {
+            client.disconnect().get()
+            Stack.releaseSharedResources()
+        } catch (e: InterruptedException) {
+            Logger.e("Error disconnecting:${e.message}", e)
+        } catch (e: ExecutionException) {
+            Logger.e("Error disconnecting:${e.message}", e)
+        }
     }
 
     private fun getEndpointDescription(client: MiloClient<T>): EndpointDescription =

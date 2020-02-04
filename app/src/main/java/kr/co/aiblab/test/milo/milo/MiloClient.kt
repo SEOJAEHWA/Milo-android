@@ -1,5 +1,6 @@
 package kr.co.aiblab.test.milo.milo
 
+import androidx.lifecycle.MutableLiveData
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider
@@ -32,4 +33,10 @@ interface MiloClient<T> {
     suspend fun execute(
         client: OpcUaClient
     ) : T
+
+    @Throws(Exception::class)
+    suspend fun execute(
+        client: OpcUaClient,
+        data: MutableLiveData<T>
+    )
 }

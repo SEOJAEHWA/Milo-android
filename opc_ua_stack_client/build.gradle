@@ -1,0 +1,11 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api project(path: ':opc_ua_stack_core')
+    implementation 'io.netty:netty-codec-http:4.1.34.Final'
+    implementation 'com.digitalpetri.netty:netty-channel-fsm:0.3'
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"

@@ -1,0 +1,15 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api project(path: ':opc_ua_stack_client')
+    api project(path: ':opc_ua_sdk_core')
+
+    implementation 'com.digitalpetri.fsm:strict-machine:0.1'
+    implementation 'com.digitalpetri.netty:netty-channel-fsm:0.3'
+
+    implementation 'org.eclipse.milo:bsd-parser-core:0.3.7'
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"

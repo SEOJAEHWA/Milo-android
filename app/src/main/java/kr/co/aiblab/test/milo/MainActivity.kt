@@ -10,11 +10,8 @@ import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kr.co.aiblab.test.milo.viewmodel.OpcUaViewModel
 import kr.co.aiblab.test.milo.viewmodel.OpcUaViewModelFactory
-import org.eclipse.milo.opcua.stack.core.types.enumerated.ServerState
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -34,34 +31,20 @@ class MainActivity : AppCompatActivity() {
             updateText(it)
         }
 
-        model.readData.observe(this) {
-            val state = ServerState.from(it!![0]!!.value.value as Int)
-            val currentTime = it[1]!!.value.value
-
-            Logger.d("State=$state")
-            Logger.d("CurrentTime=$currentTime")
-
-            updateText("State=$state\nCurrentTime=$currentTime")
-        }
-
         btn_read.setOnClickListener {
-            GlobalScope.launch {
-                model.read()
-            }
+            model.read()
         }
 
         btn_browse.setOnClickListener {
-            GlobalScope.launch {
-                model.browse()
-            }
+            model.browse()
         }
 
         btn_subscribe_on.setOnClickListener {
-            model.subscribeA()
+            model.subscribe()
         }
 
         btn_subscribe_off.setOnClickListener {
-            model.unsubscribeA()
+            model.unsubscribe()
         }
     }
 

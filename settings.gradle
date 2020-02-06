@@ -1,2 +1,2 @@
-include ':app', ':opc_ua_sdk_core', ':opc_ua_stack_core', ':opc_ua_sdk_client', ':opc_ua_stack_client'
+include ':app', ':opc_ua_sdk_core', ':opc_ua_stack_core', ':opc_ua_sdk_client', ':opc_ua_stack_client', ':milo-android'
 rootProject.name='Test-Milo'

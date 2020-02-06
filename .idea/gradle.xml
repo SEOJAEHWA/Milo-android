@@ -9,6 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/milo-android" />
             <option value="$PROJECT_DIR$/opc_ua_sdk_client" />
             <option value="$PROJECT_DIR$/opc_ua_sdk_core" />
             <option value="$PROJECT_DIR$/opc_ua_stack_client" />

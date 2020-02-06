@@ -8,9 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package kr.co.aiblab.test.milo.milo;
+package kr.co.aiblab.milo;
 
-import android.util.Log;
 
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateBuilder;
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateGenerator;
@@ -47,15 +46,12 @@ public class KeyStoreLoader {
     private static final String CLIENT_ALIAS = "client-ai";
     private static final char[] PASSWORD = "password".toCharArray();
 
-    private X509Certificate clientCertificate;
-    private KeyPair clientKeyPair;
+    public X509Certificate clientCertificate;
+    public KeyPair clientKeyPair;
 
     public KeyStoreLoader load(File baseDir) throws Exception {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
-
         File serverKeyStore = new File(baseDir, "example-client.pfx");
-
-        Log.d("MILO", "Loading KeyStore at " + serverKeyStore);
 
         if (!serverKeyStore.exists()) {
             keyStore.load(null, PASSWORD);

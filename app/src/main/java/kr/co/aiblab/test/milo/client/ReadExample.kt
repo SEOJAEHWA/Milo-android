@@ -2,9 +2,7 @@ package kr.co.aiblab.test.milo.client
 
 import androidx.lifecycle.MutableLiveData
 import com.google.common.collect.ImmutableList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kr.co.aiblab.test.milo.milo.MiloClient
+import kr.co.aiblab.milo.MiloClient
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient
 import org.eclipse.milo.opcua.stack.core.Identifiers
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId
@@ -16,24 +14,22 @@ class ReadExample(
     private val data: MutableLiveData<String>
 ) : MiloClient {
 
-    override suspend fun execute(
+    override fun execute(
         client: OpcUaClient
     ) {
-        withContext(Dispatchers.IO) {
-            val nodeIds: List<NodeId> = ImmutableList.of(
-                Identifiers.Server_ServerStatus_State,
-                Identifiers.Server_ServerStatus_CurrentTime
-            )
+        val nodeIds: List<NodeId> = ImmutableList.of(
+            Identifiers.Server_ServerStatus_State,
+            Identifiers.Server_ServerStatus_CurrentTime
+        )
 
-            val readValues = client.readValues(0.0, TimestampsToReturn.Both, nodeIds)
+        val readValues = client.readValues(0.0, TimestampsToReturn.Both, nodeIds)
 
-            val dataValue = readValues.get()
-            dataValue?.let {
-                val state = ServerState.from(it[0]!!.value.value as Int)
-                val currentTime = it[1]!!.value.value
-                val message = "State=$state\nCurrentTime=$currentTime"
-                data.postValue(message)
-            }
+        val dataValue = readValues.get()
+        dataValue?.let {
+            val state = ServerState.from(it[0]!!.value.value as Int)
+            val currentTime = it[1]!!.value.value
+            val message = "State=$state\nCurrentTime=$currentTime"
+            data.postValue(message)
         }
     }
 }

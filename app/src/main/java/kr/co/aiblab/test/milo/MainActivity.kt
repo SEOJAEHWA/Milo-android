@@ -39,9 +39,9 @@ class MainActivity : AppCompatActivity() {
         abtn_connection.setOnCheckedChangeListener { _, isChecked ->
             run {
                 if (isChecked) {
-                    model.connect()
+                    model.doConnect()
                 } else {
-                    model.disconnect()
+                    model.doDisconnect()
                 }
             }
         }

@@ -2,9 +2,7 @@ package kr.co.aiblab.test.milo.client
 
 import androidx.lifecycle.MutableLiveData
 import com.orhanobut.logger.Logger
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kr.co.aiblab.test.milo.milo.MiloClient
+import kr.co.aiblab.milo.MiloClient
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient
 import org.eclipse.milo.opcua.stack.core.UaException
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId
@@ -20,19 +18,17 @@ class MethodExample(
     private val data: MutableLiveData<String>
 ) : MiloClient {
 
-    override suspend fun execute(
+    override fun execute(
         client: OpcUaClient
     ) {
-        withContext(Dispatchers.IO) {
-            val input = 16.0
-            sqrt(client, input).exceptionally {
-                Logger.e(it, "error invoking sqrt()")
-                data.postValue("error invoking sqrt() >> -1.0")
-                -1.0
-            }.thenAccept {
-                Logger.i("sqrt($input) = $it")
-                data.postValue("sqrt($input) = $it")
-            }
+        val input = 16.0
+        sqrt(client, input).exceptionally {
+            Logger.e(it, "error invoking sqrt()")
+            data.postValue("error invoking sqrt() >> -1.0")
+            -1.0
+        }.thenAccept {
+            Logger.i("sqrt($input) = $it")
+            data.postValue("sqrt($input) = $it")
         }
     }
 

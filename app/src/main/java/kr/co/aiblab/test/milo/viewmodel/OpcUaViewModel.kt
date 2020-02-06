@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.aiblab.test.milo.MainActivity
 import kr.co.aiblab.test.milo.client.BrowseExample
+import kr.co.aiblab.test.milo.client.MethodExample
 import kr.co.aiblab.test.milo.client.ReadExample
 import kr.co.aiblab.test.milo.client.SubscribeExample
 import kr.co.aiblab.test.milo.milo.KeyStoreLoader
@@ -124,7 +125,12 @@ class OpcUaViewModel(
     fun method() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-
+                _opcUaClient.value?.let {
+                    MethodExample(_data).execute(it)
+                } ?: run {
+                    Logger.e("OpcUaClient is null. Cannot execute miloClient...")
+                    _status.postValue("OpcUaClient is disconnected!!!")
+                }
             }
         }
     }

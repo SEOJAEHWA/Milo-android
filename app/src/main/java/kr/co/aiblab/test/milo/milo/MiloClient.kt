@@ -20,6 +20,5 @@ interface MiloClient {
         val endpointFilter: Predicate<EndpointDescription> = Predicate {
             true
         }
-        val identityProvider: IdentityProvider = AnonymousProvider()
     }
 }

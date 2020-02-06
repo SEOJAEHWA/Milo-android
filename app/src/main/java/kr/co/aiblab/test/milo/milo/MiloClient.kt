@@ -9,27 +9,17 @@ import java.util.function.Predicate
 
 interface MiloClient {
 
-    fun getEndpointUrl(): String {
-        return "https://192.168.0.115:8443/milo"
-//        return "opc.tcp://localhost:12686/milo"
-    }
-
-    fun endpointFilter(): Predicate<EndpointDescription> {
-        return Predicate {
-            true
-        }
-    }
-
-    fun getSecurityPolicy(): SecurityPolicy {
-        return SecurityPolicy.None
-    }
-
-    fun getIdentityProvider(): IdentityProvider {
-        return AnonymousProvider()
-    }
-
     @Throws(Exception::class)
     suspend fun execute(
         client: OpcUaClient
     )
+
+    companion object {
+        const val endpointUrl: String = "https://192.168.0.115:8443/milo"
+        val securityPolicy: SecurityPolicy = SecurityPolicy.None
+        val endpointFilter: Predicate<EndpointDescription> = Predicate {
+            true
+        }
+        val identityProvider: IdentityProvider = AnonymousProvider()
+    }
 }

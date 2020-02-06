@@ -27,8 +27,23 @@ class MainActivity : AppCompatActivity() {
         ).get(OpcUaViewModel::class.java)
 
         model.data.observe(this) {
-            Logger.i("Subscribing.... >> $it")
-            updateText(it)
+            Logger.i("DATA >> $it")
+            updateDataText(it)
+        }
+
+        model.status.observe(this) {
+            Logger.i("STATUS >> $it")
+            updateStatusText(it)
+        }
+
+        abtn_connection.setOnCheckedChangeListener { _, isChecked ->
+            run {
+                if (isChecked) {
+                    model.connect()
+                } else {
+                    model.disconnect()
+                }
+            }
         }
 
         btn_read.setOnClickListener {
@@ -39,17 +54,21 @@ class MainActivity : AppCompatActivity() {
             model.browse()
         }
 
-        btn_subscribe_on.setOnClickListener {
+        btn_subscribe.setOnClickListener {
             model.subscribe()
         }
 
-        btn_subscribe_off.setOnClickListener {
-            model.unsubscribe()
+        btn_method.setOnClickListener {
+            model.method()
         }
     }
 
-    private fun updateText(message: String) {
+    private fun updateDataText(message: String) {
         tv_info.text = message
+    }
+
+    private fun updateStatusText(status: String) {
+        tv_conn_status.text = status
     }
 
     private fun initLogger() {

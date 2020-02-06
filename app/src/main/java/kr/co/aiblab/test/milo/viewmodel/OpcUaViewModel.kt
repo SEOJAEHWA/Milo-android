@@ -8,7 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.aiblab.test.milo.MainActivity
@@ -27,55 +26,57 @@ class OpcUaViewModel(
 ) : AndroidViewModel(application) {
 
     private val _data = MutableLiveData<String>()
-
     val data: LiveData<String> = _data
 
-    // TODO client 가 여러개 관리되어야 할 수 있고 특정 시점(아마도 종료?)엔 모두 disconnect 해야함
-    //  경우에 따라서는 특정 client 만 disconnect 처리되어야 할 수 있으므로 key, value 로 관리?
-    //
-    private val _opcUaClient = MutableLiveData<OpcUaClient>()
+    private val _status = MutableLiveData<String>()
+    val status: LiveData<String> = _status
 
-    fun subscribe() {
+    private val _opcUaClient = MutableLiveData<OpcUaClient?>()
+
+    fun connect() {
+        Logger.d("DO CONNECT!")
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val miloClient = SubscribeExample(_data)
                 val client = MiloClientRunner(
-                    getKeyStoreLoader(getContext()),
-                    miloClient
+                    getKeyStoreLoader(getContext())
                 ).get()
-
-                Logger.e("SubscribeExample::OpcUaClient = $client")
 
                 try {
                     client.connect().get()
-                    _data.postValue("OpcUaClient is connected...")
+                    _status.postValue("OpcUaClient has been connected...")
                     _opcUaClient.postValue(client)
                 } catch (e: InterruptedException) {
                     Logger.e("Error connecting:${e.message}", e)
-                    _data.postValue("Error connecting:${e.message}")
+                    _status.postValue("Error connecting:${e.message}")
                 } catch (e: ExecutionException) {
                     Logger.e("Error connecting:${e.message}", e)
-                    _data.postValue("Error connecting:${e.message}")
+                    _status.postValue("Error connecting:${e.message}")
                 }
-                miloClient.execute(client)
             }
         }
     }
 
-    fun unsubscribe() {
+    fun disconnect() {
+        Logger.d("DO DISCONNECT!")
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _opcUaClient.value?.let {
                     try {
                         it.disconnect().get()
-                        delay(500)
-                        _data.postValue("OpcUaClient is disconnected!!!")
-                        Stack.releaseSharedResources()
+                        _status.postValue("OpcUaClient has been disconnected!!!")
                     } catch (e: InterruptedException) {
                         Logger.e("Error disconnecting:${e.message}", e)
+                        _status.postValue("Error disconnecting:${e.message}")
                     } catch (e: ExecutionException) {
                         Logger.e("Error disconnecting:${e.message}", e)
+                        _status.postValue("Error disconnecting:${e.message}")
+                    } finally {
+                        _opcUaClient.postValue(null)
+                        Stack.releaseSharedResources()
+                        _data.postValue("Cleaned...")
                     }
+                } ?: run {
+                    Logger.e("OpcUaClient is null. Do nothing...")
                 }
             }
         }
@@ -84,30 +85,11 @@ class OpcUaViewModel(
     fun read() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val miloClient = ReadExample(_data)
-                val client = MiloClientRunner(
-                    getKeyStoreLoader(getContext()),
-                    miloClient
-                ).get()
-
-                Logger.e("ReadExample::OpcUaClient = $client")
-
-                try {
-                    client.connect().get()
-                    _data.postValue("OpcUaClient is connected...")
-
-                    delay(1000)
-
-                    miloClient.execute(client)
-
-                    client.disconnect().get()
-                    Stack.releaseSharedResources()
-                } catch (e: InterruptedException) {
-                    Logger.e("Error connecting:${e.message}", e)
-                    _data.postValue("Error connecting:${e.message}")
-                } catch (e: ExecutionException) {
-                    Logger.e("Error connecting:${e.message}", e)
-                    _data.postValue("Error connecting:${e.message}")
+                _opcUaClient.value?.let {
+                    ReadExample(_data).execute(it)
+                } ?: run {
+                    Logger.e("OpcUaClient is null. Cannot execute miloClient...")
+                    _status.postValue("OpcUaClient is disconnected!!!")
                 }
             }
         }
@@ -116,29 +98,33 @@ class OpcUaViewModel(
     fun browse() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val miloClient = BrowseExample(_data)
-                val client = MiloClientRunner(
-                    getKeyStoreLoader(getContext()),
-                    miloClient
-                ).get()
-
-                try {
-                    client.connect().get()
-                    _data.postValue("OpcUaClient is connected...")
-
-                    delay(1000)
-
-                    miloClient.execute(client)
-
-                    client.disconnect().get()
-                    Stack.releaseSharedResources()
-                } catch (e: InterruptedException) {
-                    Logger.e("Error connecting:${e.message}", e)
-                    _data.postValue("Error connecting:${e.message}")
-                } catch (e: ExecutionException) {
-                    Logger.e("Error connecting:${e.message}", e)
-                    _data.postValue("Error connecting:${e.message}")
+                _opcUaClient.value?.let {
+                    BrowseExample(_data).execute(it)
+                } ?: run {
+                    Logger.e("OpcUaClient is null. Cannot execute miloClient...")
+                    _status.postValue("OpcUaClient is disconnected!!!")
                 }
+            }
+        }
+    }
+
+    fun subscribe() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _opcUaClient.value?.let {
+                    SubscribeExample(_data).execute(it)
+                } ?: run {
+                    Logger.e("OpcUaClient is null. Cannot execute miloClient...")
+                    _status.postValue("OpcUaClient is disconnected!!!")
+                }
+            }
+        }
+    }
+
+    fun method() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+
             }
         }
     }

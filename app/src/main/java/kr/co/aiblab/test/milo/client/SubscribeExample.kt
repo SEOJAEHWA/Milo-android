@@ -27,7 +27,6 @@ class SubscribeExample(
         client: OpcUaClient
     ) {
         withContext(Dispatchers.IO) {
-
             val subscription: UaSubscription = client.subscriptionManager
                 .createSubscription(1000.0)
                 .get()
@@ -43,7 +42,7 @@ class SubscribeExample(
 
             val parameters = MonitoringParameters(
                 clientHandle,
-                2000.0,
+                5000.0,
                 null,
                 UInteger.valueOf(10),
                 true
@@ -53,11 +52,6 @@ class SubscribeExample(
                 readValueId,
                 MonitoringMode.Reporting,
                 parameters
-            )
-
-            subscription.createMonitoredItems(
-                TimestampsToReturn.Both,
-                listOf(request)
             )
 
             val items = subscription.createMonitoredItems(

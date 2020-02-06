@@ -13,15 +13,14 @@ import java.security.Security
 
 
 class MiloClientRunner(
-    private val keyStoreLoader: KeyStoreLoader,
-    private val miloClient: MiloClient
+    private val keyStoreLoader: KeyStoreLoader
 ) {
     @Throws(Exception::class)
-    private fun createClient(client: MiloClient): OpcUaClient {
-        val endpoint = getEndpointDescription(client)
+    private fun createClient(): OpcUaClient {
+        val endpoint = getEndpointDescription()
         Logger.d(
             "Using endpoint: ${endpoint.endpointUrl} " +
-                    "[$client.getSecurityPolicy()/${endpoint.securityMode}]"
+                    "[SecurityPolicy()/${endpoint.securityMode}]"
         )
 
         val config = with(OpcUaClientConfig.builder()) {
@@ -36,14 +35,14 @@ class MiloClientRunner(
     }
 
     suspend fun get(): OpcUaClient = withContext(Dispatchers.Default) {
-        createClient(miloClient)
+        createClient()
     }
 
-    private fun getEndpointDescription(client: MiloClient): EndpointDescription = try {
-        DiscoveryClient.getEndpoints(client.getEndpointUrl()).get()
+    private fun getEndpointDescription(): EndpointDescription = try {
+        DiscoveryClient.getEndpoints(MiloClient.endpointUrl).get()
     } catch (ex: Throwable) { // try the explicit discovery endpoint as well
         Logger.e(ex.message ?: "")
-        var discoveryUrl: String = client.getEndpointUrl()
+        var discoveryUrl: String = MiloClient.endpointUrl
         if (!discoveryUrl.endsWith("/")) {
             discoveryUrl += "/"
         }
@@ -52,9 +51,9 @@ class MiloClientRunner(
         DiscoveryClient.getEndpoints(discoveryUrl).get()
     }.stream()
         .filter { e: EndpointDescription ->
-            e.securityPolicyUri == client.getSecurityPolicy().uri
+            e.securityPolicyUri == MiloClient.securityPolicy.uri
         }
-        .filter(client.endpointFilter())
+        .filter(MiloClient.endpointFilter)
         .findFirst()
         .orElseThrow {
             Exception("no desired endpoints returned")

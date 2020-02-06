@@ -7,36 +7,58 @@
     android:padding="8dp"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btn_read"
+    <androidx.appcompat.widget.AppCompatToggleButton
+        android:id="@+id/abtn_connection"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="READ!"
-        app:layout_constraintEnd_toStartOf="@+id/btn_browse"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
+        android:textOff="DISCONNECTED"
+        android:textOn="CONNECTED"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="HardcodedText" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_conn_status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:padding="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/abtn_connection"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/abtn_connection"
+        app:layout_constraintTop_toTopOf="@+id/abtn_connection"
+        tools:ignore="HardcodedText"
+        tools:text="Status\nERROR" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_read"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="READ"
+        app:layout_constraintEnd_toStartOf="@+id/btn_browse"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/abtn_connection"
+        tools:ignore="HardcodedText" />
+
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_browse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="BROWSE!"
+        android:text="BROWSE"
         app:layout_constraintBottom_toBottomOf="@+id/btn_read"
-        app:layout_constraintEnd_toStartOf="@+id/btn_subscribe_on"
+        app:layout_constraintEnd_toStartOf="@+id/btn_subscribe"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btn_read"
         app:layout_constraintTop_toTopOf="@+id/btn_read"
         tools:ignore="HardcodedText" />
 
-    <Button
-        android:id="@+id/btn_subscribe_on"
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_subscribe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SUBSCRIBE ON!"
+        android:text="SUBSCRIBE"
         app:layout_constraintBottom_toBottomOf="@+id/btn_browse"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -44,25 +66,26 @@
         app:layout_constraintTop_toTopOf="@+id/btn_browse"
         tools:ignore="HardcodedText" />
 
-    <Button
-        android:id="@+id/btn_subscribe_off"
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_method"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SUBSCRIBE OFF!"
-        app:layout_constraintStart_toEndOf="@+id/btn_browse"
-        app:layout_constraintTop_toBottomOf="@+id/btn_subscribe_on"
+        android:text="METHOD"
+        app:layout_constraintStart_toStartOf="@+id/btn_read"
+        app:layout_constraintTop_toBottomOf="@+id/btn_read"
         tools:ignore="HardcodedText" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_info"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:background="#CCCCCC"
         android:padding="4dp"
         android:text="Hello World!"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_subscribe_off" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_method" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

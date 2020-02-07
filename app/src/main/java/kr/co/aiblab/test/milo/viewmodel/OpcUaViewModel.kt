@@ -10,7 +10,7 @@ import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kr.co.aiblab.milo.KeyStoreLoader
+import kr.co.aiblab.test.milo.milo.KeyStoreLoader
 import kr.co.aiblab.milo.MiloClient
 import kr.co.aiblab.test.milo.MainActivity
 import kr.co.aiblab.test.milo.client.BrowseExample

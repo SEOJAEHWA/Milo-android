@@ -1,7 +1,6 @@
 package kr.co.aiblab.test.milo.milo
 
 import androidx.annotation.WorkerThread
-import kr.co.aiblab.milo.KeyStoreLoader
 import kr.co.aiblab.milo.MiloClient
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package kr.co.aiblab.milo;
+package kr.co.aiblab.test.milo.milo;
 
 
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateBuilder;

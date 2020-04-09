@@ -6,8 +6,8 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription
 import org.eclipse.milo.opcua.stack.core.AttributeId
-import org.eclipse.milo.opcua.stack.core.Identifiers
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId
 import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger
 import org.eclipse.milo.opcua.stack.core.types.enumerated.MonitoringMode
@@ -18,7 +18,8 @@ import org.eclipse.milo.opcua.stack.core.types.structured.ReadValueId
 
 
 class SubscribeExample(
-    private val data: MutableLiveData<String>
+    private val data: MutableLiveData<String>,
+    private val nodeId: NodeId
 ) : MiloClient {
 
     override fun execute(
@@ -29,7 +30,7 @@ class SubscribeExample(
             .get()
 
         val readValueId = ReadValueId(
-            Identifiers.Server_ServerStatus_CurrentTime,
+            nodeId,
             AttributeId.Value.uid(),
             null,
             QualifiedName.NULL_VALUE
@@ -58,8 +59,12 @@ class SubscribeExample(
             item.setValueConsumer { it: UaMonitoredItem, value: DataValue ->
                 run {
                     val message =
-                        "subscription value received: item=${it.readValueId.nodeId}, " +
-                                "value=${value.value}"
+                        "[Subscribing...]" +
+                                "\nSubscription value received:" +
+                                "\n    item=${it.readValueId.nodeId}, " +
+                                "\n    value=${value.value}" +
+                                "\n    serverTime=${value.serverTime}" +
+                                "\n"
                     data.postValue(message)
                 }
             }
@@ -67,9 +72,11 @@ class SubscribeExample(
 
         for (item in items) {
             val message: String = if (item.statusCode.isGood) {
-                "item created for nodeId=${item.readValueId.nodeId}"
+                "[Subscribe] " +
+                        "\nItem created for nodeId=${item.readValueId.nodeId}"
             } else {
-                "failed to create item for nodeId=${item.readValueId.nodeId} " +
+                "[Subscribe] " +
+                        "\nFailed to create item for nodeId=${item.readValueId.nodeId} " +
                         "(status=${item.statusCode})"
             }
             data.postValue(message)

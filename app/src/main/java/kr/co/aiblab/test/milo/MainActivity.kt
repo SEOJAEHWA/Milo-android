@@ -2,6 +2,8 @@ package kr.co.aiblab.test.milo
 
 import android.content.Context
 import android.os.Bundle
+import android.text.TextUtils
+import android.text.method.ScrollingMovementMethod
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -21,17 +23,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val model = ViewModelProvider(
+        val viewModel = ViewModelProvider(
             this,
             OpcUaViewModelFactory(application)
         ).get(OpcUaViewModel::class.java)
 
-        model.data.observe(this) {
+        viewModel.data.observe(this) {
             Logger.i("DATA >> $it")
             updateDataText(it)
         }
 
-        model.status.observe(this) {
+        viewModel.status.observe(this) {
             Logger.i("STATUS >> $it")
             updateStatusText(it)
         }
@@ -39,32 +41,56 @@ class MainActivity : AppCompatActivity() {
         abtn_connection.setOnCheckedChangeListener { _, isChecked ->
             run {
                 if (isChecked) {
-                    model.doConnect()
+                    viewModel.doConnect()
                 } else {
-                    model.doDisconnect()
+                    viewModel.doDisconnect()
                 }
             }
         }
 
         btn_read.setOnClickListener {
-            model.read()
+            viewModel.read()
         }
 
         btn_browse.setOnClickListener {
-            model.browse()
+            viewModel.browse()
         }
 
         btn_subscribe.setOnClickListener {
-            model.subscribe()
+            viewModel.subscribe()
+        }
+
+        btn_subscribe_coord.setOnClickListener {
+            viewModel.subscribeCoordination()
         }
 
         btn_method.setOnClickListener {
-            model.method()
+            viewModel.method()
+        }
+
+        tv_info.movementMethod = ScrollingMovementMethod()
+    }
+
+    private fun appendTextAndScroll(text: String) {
+        with(tv_info) {
+//            append("$text\n".trimIndent())
+            this.text = text
+            tv_info.layout?.let {
+                if (layout != null) {
+                    val scrollDelta: Int = layout.getLineBottom(lineCount - 1) - scrollY - height
+                    if (scrollDelta > 0) scrollBy(0, scrollDelta)
+                }
+            }
         }
     }
 
     private fun updateDataText(message: String) {
-        tv_info.text = message
+        if (TextUtils.isEmpty(tv_info.text)) {
+            appendTextAndScroll(message)
+        } else {
+            val newMessage = tv_info.text.toString() + "\n\n" + message
+            appendTextAndScroll(newMessage)
+        }
     }
 
     private fun updateStatusText(status: String) {

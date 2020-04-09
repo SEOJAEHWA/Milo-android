@@ -10,16 +10,18 @@ import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kr.co.aiblab.test.milo.milo.KeyStoreLoader
 import kr.co.aiblab.milo.MiloClient
 import kr.co.aiblab.test.milo.MainActivity
 import kr.co.aiblab.test.milo.client.BrowseExample
 import kr.co.aiblab.test.milo.client.MethodExample
 import kr.co.aiblab.test.milo.client.ReadExample
 import kr.co.aiblab.test.milo.client.SubscribeExample
+import kr.co.aiblab.test.milo.milo.KeyStoreLoader
 import kr.co.aiblab.test.milo.milo.MiloClientRunner
+import kr.co.aiblab.test.milo.milo.NodeIdentifiers
 import kr.co.aiblab.test.milo.milo.OpcUaCallback
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient
+import org.eclipse.milo.opcua.stack.core.Identifiers
 import java.io.File
 
 class OpcUaViewModel(
@@ -60,7 +62,20 @@ class OpcUaViewModel(
 
     fun subscribe() {
         viewModelScope.launch {
-            executeMiloClient(SubscribeExample(_data))
+            executeMiloClient(SubscribeExample(_data, Identifiers.Server_ServerStatus_CurrentTime))
+        }
+    }
+
+    fun subscribeCoordination() {
+        viewModelScope.launch {
+            // PositionDetectionSensor/PositionX
+            executeMiloClient(SubscribeExample(_data, NodeIdentifiers.PositionX))
+
+            // PositionDetectionSensor/PositionY
+            executeMiloClient(SubscribeExample(_data, NodeIdentifiers.PositionY))
+
+            // PositionDetectionSensor/PositionZ
+            executeMiloClient(SubscribeExample(_data, NodeIdentifiers.PositionZ))
         }
     }
 

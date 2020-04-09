@@ -11,8 +11,8 @@
         android:id="@+id/abtn_connection"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textOff="DISCONNECTED"
-        android:textOn="CONNECTED"
+        android:textOff="CONNECTED"
+        android:textOn="DISCONNECTED"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="HardcodedText" />
@@ -75,6 +75,16 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_read"
         tools:ignore="HardcodedText" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_subscribe_coord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SUBSCRIBE COORD"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_method"
+        app:layout_constraintStart_toEndOf="@+id/btn_method"
+        app:layout_constraintTop_toBottomOf="@+id/btn_read"
+        tools:ignore="HardcodedText" />
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_info"
         android:layout_width="match_parent"
@@ -82,10 +92,11 @@
         android:layout_marginTop="8dp"
         android:background="#CCCCCC"
         android:padding="4dp"
-        android:text="Hello World!"
+        android:scrollbars="vertical|horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_method" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_method"
+        tools:text="Hello World!" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

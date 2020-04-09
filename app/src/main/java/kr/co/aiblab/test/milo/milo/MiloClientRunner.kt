@@ -103,7 +103,8 @@ class MiloClientRunner {
             Security.addProvider(BouncyCastleProvider())
         }
 
-        const val endpointUrl: String = "https://192.168.0.115:8443/milo"
+        const val endpointUrl: String = "opc.tcp://192.168.0.103:4840"
+//        const val endpointUrl: String = "https://192.168.0.115:8443/milo"
         val securityPolicy: SecurityPolicy = SecurityPolicy.None
         val endpointFilter: Predicate<EndpointDescription> = Predicate {
             true

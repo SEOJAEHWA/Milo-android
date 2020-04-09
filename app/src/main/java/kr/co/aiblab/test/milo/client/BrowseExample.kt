@@ -4,7 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import kr.co.aiblab.milo.MiloClient
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient
 import org.eclipse.milo.opcua.stack.core.Identifiers
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned
 import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseDirection
 import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseResultMask
 import org.eclipse.milo.opcua.stack.core.types.enumerated.NodeClass
@@ -19,7 +21,11 @@ class BrowseExample(
         client: OpcUaClient
     ) {
         val browse = BrowseDescription(
-            Identifiers.RootFolder,
+//            Identifiers.ObjectsFolder,
+            NodeId(Unsigned.ushort(2), Unsigned.uint(2069)), // PositionDetectionSensor
+//            NodeId(Unsigned.ushort(2), Unsigned.uint(2070)), // PositionDetectionSensor/PositionX
+//            NodeId(Unsigned.ushort(2), Unsigned.uint(2071)), // PositionDetectionSensor/PositionY
+//            NodeId(Unsigned.ushort(2), Unsigned.uint(2072)), // PositionDetectionSensor/PositionZ
             BrowseDirection.Forward,
             Identifiers.References,
             true,
@@ -31,7 +37,8 @@ class BrowseExample(
         browseResult.references?.asList()?.let {
             val stringBuilder = StringBuilder()
             for (referenceDescription in it) {
-                stringBuilder.append("Node=${referenceDescription.browseName.name}")
+                stringBuilder.append("Node=${referenceDescription.browseName.name} >> " +
+                        "${referenceDescription.nodeId.namespaceIndex} : ${referenceDescription.nodeId.identifier}")
                 stringBuilder.append("\n")
             }
             data.postValue(stringBuilder.toString())
